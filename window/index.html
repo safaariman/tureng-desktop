@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Tureng</title>
+
+    <!-- Start Stylesheet Block -->
+    <link rel="stylesheet" href="../lib/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../lib/tureng/css/thecube.css">
+    <link rel="stylesheet" href="../lib/tureng/css/tt-menu.css">
+    <link rel="stylesheet" href="../lib/tureng/css/tureng.css">
+    <!-- End Stylesheet Block -->
+</head>
+<body>
+<div class="container-fluid">
+    <nav class="navbar navbar-default navbar-fixed-top noselect" style="background: #bd1e2c;">
+        <div class="container">
+            <ul class="nav nav-tabs">
+                <li class="pull-right">
+                    <form class="navbar-form" role="search" style="border:none;">
+                        <div id="scrollable-dropdown-menu" class="input-group">
+                            <input type="search" class="form-control typeahead" placeholder="Search" name="search" id="search">
+                            <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                        </div>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container">
+
+        <div class="row">
+            <div class="col-sm-12 full-body-down noselect" id="left">
+
+            </div>
+
+            <div class="col-sm-12 full-body-down noselect" id="right">
+
+            </div>
+
+            <ul id="context_menu" class="dropdown-menu noselect" role="menu" style="display:none" >
+                <li><a draggable="false" tabindex="-1" href="#" id="translate">Translate</a></li>
+                <li><a draggable="false" tabindex="-1" href="#" id="copy">Copy</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Start Script Block -->
+<script>
+    if (typeof module === 'object') {
+        window.module = module;
+        module = undefined;
+    }
+</script>
+<script type="text/javascript" src="../lib/jquery/js/jquery.min.js"></script>
+<script type='text/javascript' src="../lib/bootstrap/js/bootstrap.min.js"></script>
+<script type='text/javascript' src="../lib/typeahead/js/typeahead.bundle.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/clipboard.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/notification.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/autocomplete.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/thecube.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/contextmenu.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/tureng.js"></script>
+<script type="text/javascript" src="../lib/tureng/js/templates.js"></script>
+<script type="text/javascript" src="../lib/mustache/js/mustache.js"></script>
+<script>
+    $('#search').keyup(function (event) {
+        if (event.keyCode == '13') {
+            document.getElementById('left').innerHTML = thecube_animation_html;
+            document.getElementById('right').innerHTML = thecube_animation_html;
+            var x = document.getElementById("search").value;
+            get_suggestions_from_tureng(x, function (data) {
+                document.getElementById('left').innerHTML = render_panel(Templates.left_panel_inner_template, data);
+                init_left_panel_right_click_menu();
+            });
+            get_translations_from_tureng(x, function (data) {
+                document.getElementById('right').innerHTML = render_panel(Templates.right_panel_inner_template, data);
+                init_right_panel_right_click_menu();
+            });
+        } else if (event.keyCode == '27') {
+            document.getElementById("search").value = '';
+        }
+    });
+</script>
+
+<script>
+    function init_right_panel_right_click_menu() {
+        init_context_menu("inner-right", "context_menu", function (invokedOn, selectedMenu) {
+            var itemId = selectedMenu.attr('id');
+            switch (itemId) {
+                case "copy":
+                    copy_to_clipboard(invokedOn.text());
+                    send_notification();
+                    break;
+                case "translate":
+                    update_suggestions_and_translations(invokedOn.text());
+                    break;
+            }
+        });
+    }
+</script>
+
+<script>
+    function init_left_panel_right_click_menu() {
+        init_context_menu("inner-left", "context_menu", function (invokedOn, selectedMenu) {
+            var itemId = selectedMenu.attr('id');
+            switch (itemId) {
+                case "copy":
+                    copy_to_clipboard(invokedOn.text());
+                    send_notification();
+                    break;
+                case "translate":
+                    update_translations(invokedOn.text());
+                    break;
+            }
+        });
+    }
+</script>
+
+<script>
+    function update_suggestions (text) {
+        get_suggestions_from_tureng(text, function (data) {
+            document.getElementById('left').innerHTML = render_panel(Templates.left_panel_inner_template, data);
+            init_left_panel_right_click_menu();
+        });
+    }
+</script>
+
+<script>
+    function update_translations (text) {
+        get_translations_from_tureng(invokedOn.text(), function (data) {
+            document.getElementById('right').innerHTML = render_panel(Templates.right_panel_inner_template, data);
+            init_right_panel_right_click_menu();
+        });
+    }
+</script>
+
+<script>
+    function update_suggestions_and_translations (text) {
+        get_suggestions_from_tureng(text, function (data) {
+            document.getElementById('left').innerHTML = render_panel(Templates.left_panel_inner_template, data);
+            init_left_panel_right_click_menu();
+        });
+        get_translations_from_tureng(text, function (data) {
+            document.getElementById('right').innerHTML = render_panel(Templates.right_panel_inner_template, data);
+            init_right_panel_right_click_menu();
+        });
+    }
+</script>
+
+<script>if (window.module) module = window.module;</script>
+<!-- End Script Block -->
+</body>
+</html>
